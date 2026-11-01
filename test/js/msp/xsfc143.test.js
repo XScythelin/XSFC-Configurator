@@ -22,6 +22,19 @@ describe("XSFC API 1.43 payload compatibility", () => {
         FC.CONFIG.boardIdentifier = "XSFC";
     });
 
+    it.each([0.34, 4.2, 32.5])("decodes %s A consistently across all current messages", (amps) => {
+        const centiamps = Math.round(amps * 100);
+        const milliamps = Math.round(amps * 1000);
+        const lo = (n) => n & 255;
+        const hi = (n) => (n >> 8) & 255;
+        receive(MSPCodes.MSP_ANALOG, [120, 0, 0, 0, 0, lo(centiamps), hi(centiamps), 176, 4]);
+        receive(MSPCodes.MSP_BATTERY_STATE, [3, 0, 0, 120, 0, 0, lo(centiamps), hi(centiamps), 0, 176, 4]);
+        receive(MSPCodes.MSP_CURRENT_METERS, [10, 0, 0, lo(milliamps), hi(milliamps)]);
+        expect(FC.ANALOG.amperage).toBeCloseTo(amps);
+        expect(FC.BATTERY_STATE.amperage).toBeCloseTo(amps);
+        expect(FC.CURRENT_METERS[0].amperage).toBeCloseTo(amps);
+    });
+
     it("preserves interpolation and smoothing fields when saving receiver thresholds", () => {
         // Firmware order: provider, thresholds, bind, pulse limits, interpolation,
         // SPI placeholders, camera, smoothing and auto factor. Exactly 31 bytes.

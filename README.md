@@ -1,332 +1,116 @@
 # XSFC Configurator
 
-Конфигуратор для [XSFC](https://github.com/XScythelin/XSFC), основанный на
-Betaflight Configurator **2026.6.2**. Сохранены привычные формы и компоновка;
-добавлены оформление XSFC и адаптация к MSP API 1.43.
+Конфигуратор для [XSFC](https://github.com/XScythelin/XSFC) на базе
+Betaflight Configurator **2026.6.2**, адаптированный к **MSP API 1.43**.
+Сохранены привычные вкладки и формы, добавлено оформление XSFC.
 
-Связь с контроллером: Web Serial → USB/COM → MSP. Локальный интерфейс
-доступен на **http://127.0.0.1:8081/**. Прошивка STM32/DFU не используется.
+Связь с платой: **Chrome/Edge → Web Serial → USB/COM → MSP**.
+Сервер на полётном контроллере не нужен. Локальный запускной файл открывает
+**http://127.0.0.1:8081/** отдельно от оригинального Betaflight Configurator.
 
-Совместимость проверяется поэтапно: наличие вкладки не означает поддержку
-всех её полей. Реализованные изменения, тесты и оставшиеся аппаратные проверки
-перечислены в [TODO.md](TODO.md). Это рабочие исходники, не готовый релиз.
+> Проект в разработке. Наличие вкладки не означает поддержку всех её полей
+> прошивкой. Состояние совместимости, автотестов и аппаратных проверок:
+> [TODO.md](TODO.md). Перед проверкой моторов снимите пропеллеры.
 
-Основа проекта и исходные уведомления об авторских правах сохранены.
-Лицензия: [GPL-3.0](LICENSE).
+## Запуск готового переносимого архива
 
-**Запуск на Windows:** полностью распакуйте готовый переносимый архив и откройте
-`Запустить.cmd`. Нужен Chrome или Edge. Установка Node.js и npm не требуется,
-если в архив включены `.runtime/node` и готовая сборка `src/dist`.
+1. Полностью распакуйте архив в отдельную папку.
+2. Запустите **`Запустить.cmd`**.
+3. Подключите XSFC по USB, выберите COM-порт и разрешите доступ браузеру.
 
-**GitHub → Code → Download ZIP содержит исходники, а не готовую переносимую сборку.**
-Подробности запуска, сборки и состава переносимого архива:
-[ЛОКАЛЬНЫЙ-ЗАПУСК.md](ЛОКАЛЬНЫЙ-ЗАПУСК.md).
+Нужен Google Chrome или Microsoft Edge. Node.js отдельно устанавливать не нужно,
+если архив содержит `.runtime/node` и готовую сборку `src/dist`.
 
-## Установка и сборка без готового архива (Windows x64)
+**Code → Download ZIP на GitHub содержит исходники, а не готовый переносимый
+конфигуратор.** Если готового архива нет, используйте инструкцию ниже.
 
-### 1. Установите необходимые программы
+## Сборка из исходников — Windows x64
 
-- [Node.js **24.x**](https://nodejs.org/download/release/latest-v24.x/) — выберите
-  установщик Windows x64 (`.msi`). npm входит в комплект; оставьте включённым
-  добавление Node.js в `PATH`.
-- [Git for Windows](https://git-scm.com/downloads/win) — нужен не только для
-  клонирования, но и для установки одной из зависимостей с GitHub.
-  При установке разрешите использование Git из командной строки.
-- Google Chrome или Microsoft Edge — для запуска интерфейса и доступа к USB/COM.
+Установите:
 
-После установки откройте **новое окно PowerShell** и проверьте:
+- [Node.js 24.x](https://nodejs.org/download/release/latest-v24.x/) с npm и добавлением в `PATH`;
+- [Git for Windows](https://git-scm.com/downloads/win), доступный из командной строки
+  (он нужен также для установки зависимости с GitHub);
+- Google Chrome или Microsoft Edge.
 
-```powershell
-node --version
-npm.cmd --version
-git --version
-```
-
-Версия Node.js должна начинаться с `v24.`. Интернет нужен для скачивания исходников
-и зависимостей. Python, Rust, Android Studio и сборка Tauri для этого способа
-запуска не требуются.
-
-### 2. Скачайте исходники
-
-В PowerShell перейдите в папку, где хотите разместить проект, и выполните:
-
-```powershell
-git clone --branch main https://github.com/XScythelin/Custom-Betaflight-Configurator.git
-cd Custom-Betaflight-Configurator
-```
-
-Либо скачайте **Code → Download ZIP**, полностью распакуйте его, откройте
-полученную папку в Проводнике и выберите **«Открыть в терминале»**.
-Команды следующего шага нужно выполнять в папке с `package.json`.
-
-### 3. Установите зависимости и соберите приложение
-
-Выполняйте команды по очереди. Переходите к следующей только после успешного
+Откройте новое окно PowerShell. Выполняйте команды по очереди, после успешного
 завершения предыдущей:
 
 ```powershell
+git clone --branch main https://github.com/XScythelin/XSFC-Configurator.git
+cd XSFC-Configurator
 npm.cmd ci
 npm.cmd run build
-```
-
-Первая команда скачивает зависимости в `node_modules`, вторая создаёт готовое
-приложение в `src/dist`. Используем `npm.cmd`, чтобы политика PowerShell для
-скриптов `npm.ps1` не мешала запуску. Если первая команда сообщает об отсутствии
-Git или Node.js, проверьте установки и заново откройте терминал.
-
-### 4. Запустите
-
-Дважды нажмите **`Запустить.cmd`** в папке проекта или выполните:
-
-```powershell
 .\Запустить.cmd
 ```
 
-Запускной файл использует установленный Node.js 24, если переносимого
-`.runtime/node/node.exe` нет. Откроется отдельное окно Chrome или Edge
-с адресом `http://127.0.0.1:8080`. Открывать `src/dist/index.html` напрямую нельзя.
-Подключите полётник и при запросе разрешите браузеру доступ к COM-порту или DFU.
-Если Windows не распознаёт устройство, может понадобиться соответствующий USB-драйвер.
+Сборка создаётся в `src/dist`. Запускной файл использует Node.js из `.runtime/node`
+или установленный Node.js 24 и открывает **http://127.0.0.1:8081/**.
+Не открывайте `src/dist/index.html` напрямую как файл.
 
-После изменения исходников снова выполните `npm.cmd run build`.
-После обновления зависимостей сначала повторите `npm.cmd ci`.
-Для передачи на ПК **без установленного Node.js** дополнительно нужен переносимый
-Node.js в `.runtime/node`; состав архива описан в
+После изменения исходников повторите `npm.cmd run build`, затем обновите страницу.
+После изменения зависимостей сначала выполните `npm.cmd ci`.
+Python, Rust и Android Studio для этого способа запуска не нужны.
+
+Подробности переносимого комплекта и локального запуска:
 [ЛОКАЛЬНЫЙ-ЗАПУСК.md](ЛОКАЛЬНЫЙ-ЗАПУСК.md).
 
-### Монитор и калибровка гироскопа
+## Подключение и ограничения
 
-На главной расположены четыре этапа: прошивка HEX, загрузка и проверка дампа,
-калибровка акселерометра, калибровка гироскопа.
-Последний этап использует те же MSP-команды, что C/S в мониторе: ждёт успешного
-результата калибровки и только затем сохраняет ноль во flash. Оба ответа
-показываются отдельно. При отсутствии ответа команды автоматически не повторяются.
+- Основной целевой контроллер — XSFC на ESP32-P4, MSP API 1.43.
+- Отключайте другие программы от COM-порта перед подключением.
+- STM32 DFU/HEX-прошивка не предназначена для XSFC. Прошивка ESP32-P4
+  выполняется отдельно средствами проекта прошивки.
+- Виртуальное подключение убрано; главная страница не содержит мастеров прошивки
+  и внешних инструментов калибровки.
+- CLI работает без сборки Betaflight AutoComplete Cache: формат CLI XSFC
+  несовместим с этим сборщиком. Команды вводятся вручную, список — `help`.
+- Показатели CPU0/CPU1 требуют прошивки с расширением статуса XSFC. Они отражают
+  инструментированные рабочие циклы XSFC, а не полную загрузку RTOS/прерываний.
+  Для старой прошивки доступен агрегированный показатель.
+- Сохранение и USB-переподключение после перезагрузки требуют проверки на плате;
+  успешные автотесты не гарантируют аппаратную совместимость.
 
-Кнопка **«Проверка гироскопа»** в дополнительных инструментах открывает отдельную программу
-из `tools/gyro-monitor`. Она использует специальные MSP-команды пользовательской
-прошивки; штатная прошивка может их не поддерживать.
-Конфигуратор освобождает COM-порт и отключает автоподключение на время работы.
-В мониторе выберите порт: **C** — калибровка в RAM, **S** — сохранение во flash
-всей текущей конфигурации. Не двигайте плату. Снимите пропеллеры, выключите ARM.
-Перед возвратом закройте монитор: выйдите из просмотра и нажмите **Q** в выборе порта.
+## Датчик тока
 
-Для монитора дополнительно нужен [Python 3](https://www.python.org/downloads/windows/)
-(рекомендуется 3.11 или новее), установленный с **Add python.exe to PATH**.
-В новом PowerShell из корня проекта выполните:
+Источник `NONE` означает выключенное измерение. Если аналоговый CUR датчика ESC
+подключён к настроенному ADC-входу, явно выберите ADC во вкладке питания либо в CLI:
+
+```text
+set ibat_source ADC
+save
+```
+
+Масштаб тока XSFC **мультипликативный**:
+
+```text
+I[A] = (Uadc[V] + ibat_offset × 0.001) × ibat_scale × 0.1
+```
+
+Коэффициент Betaflight нельзя переносить в XSFC без пересчёта. Калибруйте по
+достоверному внешнему измерению при стабильной нагрузке, не по положению газа.
+Обороты без пропеллеров не определяют потребляемый ток. Преобразование ADC на P4
+пока использует приближённый масштаб; абсолютная точность не подтверждена.
+
+## Разработка и проверки
 
 ```powershell
-python -m venv tools/gyro-monitor/.venv
-.\tools\gyro-monitor\.venv\Scripts\python.exe -m pip install pyserial==3.5
+npm.cmd run dev
 ```
 
-Python-окружение `.venv` не является переносимым: на другом ПК его нужно создать
-заново. Это требование относится только к внешнему гиромонитору; прошивка HEX,
-дампы, акселерометр и CLI Python не используют.
+Это отдельный режим Vite: адрес и порт смотрите в выводе терминала.
+Для запуска регрессионных тестов без предварительного общего lint:
 
-Кнопка **«Калибровка акселерометра»** сначала показывает инструкцию по положению
-платы, затем подключается и отправляет штатную команду калибровки.
-**«Открыть CLI»** подключается и сразу открывает встроенный CLI.
-Кнопки включения/отключения автокалибровки задают `gyro_cal_on_startup = ON/OFF`
-через CLI и сохраняют с `save noreboot`, чтобы получить подтверждение записи.
-После полностью успешной проверки дампа, калибровки акселерометра или изменения
-автокалибровки конфигуратор отключается от платы и выключает автоподключение.
-Если COM-порт не выбран, появится кнопка его выбора. DFU для этих двух действий
-не подходит.
-
----
-
-Ниже сохранена документация исходного проекта Betaflight.
-
-## Betaflight App
-
-[![Latest version](https://img.shields.io/github/v/release/betaflight/betaflight-configurator)](https://github.com/betaflight/betaflight-configurator/releases)
-[![Build](https://img.shields.io/github/actions/workflow/status/betaflight/betaflight-configurator/deploy.yml?branch=master)](https://github.com/betaflight/betaflight-configurator/actions/workflows/deploy.yml)
-[![Crowdin](https://d322cqt584bo4o.cloudfront.net/betaflight-configurator/localized.svg)](https://crowdin.com/project/betaflight-configurator)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=betaflight_betaflight-configurator&metric=alert_status)](https://sonarcloud.io/dashboard?id=betaflight_betaflight-configurator)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Join us on Discord!](https://img.shields.io/discord/868013470023548938)](https://discord.gg/n4E6ak4u3c)
-
-
-Betaflight App is a crossplatform configuration and management application for the Betaflight flight control system.
-
-The Betaflight App is a Progressive Web Application (PWA). The most recent release of the Betaflight App is available at [app.betaflight.com](https://app.betaflight.com)
-
-NOTE: If you are considering testing the latest unstable release then it is at [master.app.betaflight.com](https://master.app.betaflight.com)
-
-Various types of aircraft are supported by the tool and by Betaflight, e.g. quadcopters, hexacopters, octocopters and fixed-wing aircraft.
-
-## Historical Releases
-
-These are still available under different operating systems and allows you to configure the Betaflight software running on any supported Betaflight target. [Downloads are available in Releases.](https://github.com/betaflight/betaflight-configurator/releases)
-
-## Installation
-
-### Standalone
-
-We provide a standalone program for Windows, Linux, Mac and Android.
-
-Download the installer from [Releases.](https://github.com/betaflight/betaflight-configurator/releases)
-
-### Notes
-
-#### Windows users
-
-The minimum required version of windows is Windows 8.
-
-#### MacOS X users
-
-Changes to the security model used in the latest versions of MacOS X 10.14 (Mojave) and 10.15 (Catalina) mean that the operating system will show an error message ('"Betaflight Configurator.app" is damaged and can’t be opened. You should move it to the Trash.') when trying to install the application. To work around this, run the following command in a terminal after installing: `sudo xattr -rd com.apple.quarantine /Applications/Betaflight\ App.app`.
-
-#### Linux users
-
-First step is to download the installer and keep it in your working directory, which can be done with the following command:
-```
-wget https://github.com/betaflight/betaflight-configurator/releases/download/10.10.0/betaflight-configurator_10.10.0_amd64.deb
+```powershell
+npx.cmd vitest run
 ```
 
-In most Linux distributions your user won't have access to serial interfaces by default. To add this access right type the following command in a terminal, log out your user and log in again:
+Конкретные выполненные проверки и оставшиеся ограничения перечислены в `TODO.md`.
+Унаследованные сценарии сборки Tauri/Capacitor и GitHub Actions ещё требуют
+отдельного аудита для XSFC; их наличие не означает наличие готовых релизов.
 
-```
-sudo usermod -aG dialout ${USER}
-```
+## Основа и лицензия
 
-Post-installation errors can be prevented by making sure the directory `/usr/share/desktop-directories` exists. To make sure it exists, run the following command before installing the package:
-
-```
-sudo mkdir /usr/share/desktop-directories/
-```
-
-The `libatomic` library must also be installed before installing Betaflight App. (If the library is missing, the installation will succeed but Betaflight App will not start.) Some Linux distributions (e.g. Fedora) will install it automatically. On Debian or Ubuntu you can install it as follows:
-
-```
-sudo apt install libatomic1
-```
-
-On Ubuntu 23.10 please follow these alternative steps for installation:
-
-```
-sudo echo "deb http://archive.ubuntu.com/ubuntu/ lunar universe" > /etc/apt/sources.list.d/lunar-repos-old.list
-sudo apt update
-sudo dpkg -i betaflight-configurator_10.10.0_amd64.deb
-sudo apt-get -f install
-```
-
-On Ubuntu 24.10 and above, please follow these steps, as some deprecated modules are no longer available through apt on this distro:
-```
-sudo apt update
-wget http://archive.ubuntu.com/ubuntu/pool/universe/g/gconf/libgconf-2-4_3.2.6-4ubuntu1_amd64.deb
-wget http://archive.ubuntu.com/ubuntu/pool/universe/g/gconf/gconf2-common_3.2.6-4ubuntu1_all.deb
-sudo dpkg -i gconf2-common_3.2.6-4ubuntu1_all.deb
-sudo dpkg -i libgconf-2-4_3.2.6-4ubuntu1_amd64.deb
-sudo dpkg -i betaflight-configurator_10.10.0_amd64.deb
-sudo apt-get -f install
-```
-
-#### Graphics Issues
-
-If you experience graphics display problems or smudged/dithered fonts display issues in Betaflight App, try invoking the `betaflight-configurator` executable file with the `--disable-gpu` command line switch. This will switch off hardware graphics acceleration. Likewise, setting your graphics card antialiasing option to OFF (e.g. FXAA parameter on NVidia graphics cards) might be a remedy as well.
-
-### Unstable Testing Versions
-
-The future of the Betaflight App is moving to a PWA (Progressive Web Application). In this way it will be easier to maintain specially to support different devices like phones, tablets. etc. Is a work in progress but you can have access to the latest snapshot in PWA way without installing anything (take into account that some things don't work and are in development).
-
-- Latest PWA master snapshot of the App: [https://master.app.betaflight.com/](https://master.app.betaflight.com/)
-
-**Be aware that this version is intended for testing / feedback only, and may be buggy or broken, and can cause flight controller settings to be corrupted. Caution is advised when using this version.**
-
-## Languages
-
-**Please do not submit pull requests for translation changes, but read and follow the instructions below!**
-
-Betaflight App has been translated into several languages. The application will try to detect and use your system language if a translation into this language is available. You can help [translating the application into your language](https://github.com/betaflight/betaflight/tree/master/README.md#translators);
-
-If you prefer to have the application in English or any other language, you can select your desired language in the first screen of the application.
-
-## Build and Development
-
-### Technical details
-
-The next versions of the App will be a modern tool that based on PWA (Progressive Web Application) and uses principally Node, npm, Vite and Vue for development and building. For Android we use Capacitor as wrapper over the PWA. To build and develop over it, follow the instructions below.
-
-### Prepare your environment
-
-1. Install [node.js](https://nodejs.org/) (refer to [.nvmrc](./.nvmrc) for minimum required version)
-
-### PWA version
-
-#### Run development version
-
-1. Change to project folder and run `npm install`.
-2. Run `npm run dev`.
-
-The web app will be available at http://localhost:8080 with full HMR.
-
-#### Run production version
-
-1. Change to project folder and run `npm install`.
-2. Run `npm run build`.
-3. Run `npm run preview` after build has finished.
-
-Alternatively you can run `npm run review` to build and preview in one step.
-
-The web app should behave directly as in production, available at http://localhost:8080.
-
-### Android version
-
-The Android version uses Capacitor as the native wrapper with custom plugins to bridge the PWA to native capabilities.
-
-#### Prerequisites
-
-You need to install [Android Studio](https://developer.android.com/studio) as Capacitor apps are configured and managed through it.
-
-#### Run development version
-
-1. Change to project folder and run `npm install`.
-2. Run `npm run android:run`.
-
-The command will ask for the device to run the app. You need to have some Android virtual machine created or some Android phone [connected using ADB](https://developer.android.com/tools/adb).
-
-As alternative to the step 2, you can execute a `npm run android:open` to open de project into Android Studio and run or debug the app from there.
-
-#### Run development version with live reload
-
-1. Change to project folder and run `npm install`.
-2. Run `npm run dev -- --host`. It will start the vite server and will show you the IP address where the server is listening.
-3. Run `npm run android:dev`
-
-This will ask for the IP where the server is running (if there are more than one network interfaces). You need to have some Android virtual machine created or some Android phone [connected using ADB](https://developer.android.com/tools/adb).
-Any change make in the code will reload the app in the Android device.
-
-### Running tests
-
-`npm test`
-
-## Support and Developers Channel
-
-There's a dedicated Discord server here:
-
-https://discord.gg/n4E6ak4u3c
-
-We also have a Facebook Group. Join us to get a place to talk about Betaflight, ask configuration questions, or just hang out with fellow pilots.
-
-https://www.facebook.com/groups/betaflightgroup/
-
-Etiquette: Don't ask to ask and please wait around long enough for a reply - sometimes people are out flying, asleep or at work and can't answer immediately.
-
-### Issue trackers
-
-For Betaflight App issues raise them here
-
-https://github.com/betaflight/betaflight-configurator/issues
-
-For Betaflight Firmware issues raise them here
-
-https://github.com/betaflight/betaflight/issues
-
-## Developers
-
-We accept clean and reasonable patches, submit them!
-
-## Credits
-
-For the full details of the contributions made to the Betaflight App (and its predecessors) please check out the [Github contributors page](https://github.com/betaflight/betaflight-configurator/graphs/contributors).
+Основа: [Betaflight Configurator](https://github.com/betaflight/betaflight-configurator).
+Исходные уведомления об авторских правах сохранены. Лицензия — [GPL-3.0](LICENSE).
+Релизы Betaflight не являются релизами XSFC Configurator.

@@ -104,6 +104,37 @@ function resetPortHandler() {
     DeviceHandler.devicePicker.selectedDevice = "noselection";
 }
 
+describe("XSFC port selection", () => {
+    beforeEach(resetPortHandler);
+
+    it.each([
+        { path: "serial_1", displayName: "Espressif USB JTAG/serial" },
+        { path: "serial_1", displayName: "XSFC ESP32P4" },
+        { path: "serial_1", displayName: "VID:12346 PID:4097", vendorId: 0x303a },
+    ])("selects a previously authorized ESP device: $displayName", (device) => {
+        DeviceHandler.currentSerialPorts = [device];
+        expect(DeviceHandler.selectActivePort()).toBe(device.path);
+        expect(DeviceHandler.devicePicker.selectedDevice).toBe(device.path);
+    });
+
+    it("preserves manual choice across refreshes but honors a newly suggested port", () => {
+        const esp = { path: "serial_1", displayName: "Espressif" };
+        const other = { path: "serial_2", displayName: "Other board" };
+        DeviceHandler.currentSerialPorts = [esp, other];
+        DeviceHandler.devicePicker.selectedDevice = other.path;
+        expect(DeviceHandler.selectActivePort()).toBe(other.path);
+        expect(DeviceHandler.selectActivePort(esp)).toBe(esp.path);
+    });
+
+    it("updates picker state to the actually connected port", () => {
+        DeviceHandler.currentSerialPorts = [{ path: "serial_1", displayName: "Espressif" }];
+        serial.connected = true;
+        serial.connectionId = "serial_1";
+        DeviceHandler.selectActivePort();
+        expect(DeviceHandler.devicePicker.selectedDevice).toBe("serial_1");
+    });
+});
+
 describe("DFU permission granted after flash was started", () => {
     beforeEach(resetPortHandler);
 

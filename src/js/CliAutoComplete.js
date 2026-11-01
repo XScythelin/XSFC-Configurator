@@ -21,6 +21,9 @@ const CliAutoComplete = {
 };
 
 CliAutoComplete.isEnabled = function () {
+    if (FC.CONFIG.boardIdentifier === "XSFC") {
+        return false;
+    }
     return (
         this.isBuilding() ||
         (this.configEnabled && FC.CONFIG.flightControllerIdentifier === "BTFL" && this.builder.state !== "fail")
@@ -125,6 +128,10 @@ CliAutoComplete._builderWatchdogStop = function () {
 };
 
 CliAutoComplete.builderStart = function () {
+    // XSFC ignores comment sentinels and does not implement the Betaflight dump/get grammar.
+    if (FC.CONFIG.boardIdentifier === "XSFC") {
+        return;
+    }
     if (this.builder.state !== "reset") {
         return;
     }

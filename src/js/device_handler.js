@@ -263,7 +263,10 @@ DeviceHandler.isKnownDevicePath = function (path) {
 };
 
 DeviceHandler.selectActivePort = function (suggestedDevice = false) {
-    const deviceFilter = ["AT32", "CP210", "SPR", "STM"];
+    const deviceFilter = ["AT32", "CP210", "SPR", "STM", "ESP", "XSFC"];
+    const recognizedDevice = (device) =>
+        device.vendorId === 0x303a ||
+        deviceFilter.some((filter) => (device.displayName || "").toUpperCase().includes(filter));
     let selectedDevice;
 
     // First check for active connections. Match on the stable connectionId (which every
@@ -287,6 +290,7 @@ DeviceHandler.selectActivePort = function (suggestedDevice = false) {
     if (selectedDevice) {
         console.log(`${this.logHead} Using connected device: ${selectedDevice.path}`);
         selectedDevice = selectedDevice.path;
+        this.devicePicker.selectedDevice = selectedDevice;
         return selectedDevice;
     }
 
@@ -298,11 +302,13 @@ DeviceHandler.selectActivePort = function (suggestedDevice = false) {
         selectedDevice = suggestedDevice.path;
     }
 
+    if (!selectedDevice && this.isKnownDevicePath(this.devicePicker.selectedDevice)) {
+        selectedDevice = this.devicePicker.selectedDevice;
+    }
+
     // Return some usb port that is recognized by the filter
     if (!selectedDevice) {
-        selectedDevice = this.currentUsbPorts.find((device) =>
-            deviceFilter.some((filter) => device.displayName.includes(filter)),
-        );
+        selectedDevice = this.currentUsbPorts.find(recognizedDevice);
         if (selectedDevice) {
             selectedDevice = selectedDevice.path;
         }
@@ -310,9 +316,7 @@ DeviceHandler.selectActivePort = function (suggestedDevice = false) {
 
     // Return some serial port that is recognized by the filter
     if (!selectedDevice) {
-        selectedDevice = this.currentSerialPorts.find((device) =>
-            deviceFilter.some((filter) => device.displayName.includes(filter)),
-        );
+        selectedDevice = this.currentSerialPorts.find(recognizedDevice);
         if (selectedDevice) {
             selectedDevice = selectedDevice.path;
         }
@@ -320,9 +324,7 @@ DeviceHandler.selectActivePort = function (suggestedDevice = false) {
 
     // Return some bluetooth port that is recognized by the filter
     if (!selectedDevice) {
-        selectedDevice = this.currentBluetoothPorts.find((device) =>
-            deviceFilter.some((filter) => device.displayName.includes(filter)),
-        );
+        selectedDevice = this.currentBluetoothPorts.find(recognizedDevice);
         if (selectedDevice) {
             selectedDevice = selectedDevice.path;
         }

@@ -122,7 +122,7 @@
                     </UiBox>
 
                     <!-- DSHOT BEACON -->
-                    <UiBox :title="$t('configurationDshotBeeper')" :help="$t('configurationDshotBeaconHelp')">
+                    <UiBox v-if="!isXsfc" :title="$t('configurationDshotBeeper')" :help="$t('configurationDshotBeaconHelp')">
                         <SettingRow
                             :label="$t('configurationDshotBeaconTone')"
                             :help="$t('configurationUseDshotBeeper')"
@@ -226,6 +226,7 @@ export default defineComponent({
     setup() {
         // Reactive State
         const fcStore = useFlightControllerStore();
+        const isXsfc = computed(() => fcStore.config.boardIdentifier === "XSFC");
         const { saveAndReboot } = useReboot();
 
         const pidAdvancedConfig = reactive({
@@ -510,7 +511,7 @@ export default defineComponent({
                         fcStore.config.name = craftName.value;
                     }
 
-                    if (fcStore.beepers) {
+                    if (fcStore.beepers && !isXsfc.value) {
                         fcStore.beepers.dshotBeaconTone = dshotBeaconTone.value;
                     }
 
@@ -589,6 +590,7 @@ export default defineComponent({
             showPilotName,
             featuresList,
             beepersList,
+            isXsfc,
             dshotBeaconConditionsList,
             dshotBeaconTone,
             isFeatureEnabled,

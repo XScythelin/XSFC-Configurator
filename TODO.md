@@ -1,5 +1,34 @@
 # XSFC Configurator
 
+- [ ] Current follow-up: user measured ~70 mV at GPIO21/GND with UI ~0.9 A;
+  scale100 predicts 0.7 A. Approximate unsynchronized measurements do not
+  establish ADC error or actual amps. No current reference; calibration pending.
+- [x] Production UI build passed after hiding unsupported DShot Beacon block.
+
+- [x] Hide unsupported DShot Beacon block for XSFC (including BAT_LOW/RX_LOST).
+  Firmware returns zero off-mask and ignores beacon setters; this falsely looked
+  enabled. Ordinary buzzer events are separately implemented and retained.
+- [ ] Current diagnostic at rest: ADC source1/pin21/scale100/offset0, raw=0,
+  estimated mV=0, filtered/unfiltered A=0. Need CUR voltage/reference under
+  safe conditions; this does not establish ADC accuracy or loaded current.
+
+- [x] Request browser translation opt-out via HTML translate=no/notranslate metadata.
+- [x] Recognize Espressif VID 0x303a and ESP/XSFC names for port selection;
+  preserve available user selection on refresh and synchronize connected picker.
+  56 device-handler/serial-backend tests passed; UI build passed.
+- [ ] Confirm browser stops translation prompts and ESP auto-selection on hardware.
+  User confirms ADC source, scale100/offset0, GPIO21; request ibatinfo from
+  flashed 14:08:39 firmware. Motor heating alone does not establish reference amps.
+
+- [x] Disable Betaflight autocomplete cache builder for XSFC, including direct
+  builder calls and saved enabled preferences; no sentinel traffic or retry wait.
+- [x] Replace stale README with XSFC repository/build/8081 instructions and
+  actual CLI/current limitations; remove obsolete HEX/gyro-tool landing claims.
+- [x] CLI/current regression run: 42 tests across 8 suites passed; UI build passed.
+  Three MSP current message decoders agree on 0.34, 4.2 and 32.5 A test payloads.
+- [ ] Hardware reports peak current only 0.34 A. Accuracy remains unresolved;
+  need saved source/pin/scale/offset, ADC data and independent reference current.
+
 - [x] Standalone source repository initialized for
   https://github.com/XScythelin/XSFC-Configurator (main).
   Runtime, generated builds, dependencies and local browser profiles excluded.
