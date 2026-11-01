@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+
+        <script type="module" src="/src/js/utils/common.js"></script>
+        <script type="module" src="/src/js/browserMain.js"></script>
+
+        <title>XSFC Configurator</title>
+        <meta
+            name="description"
+            content="Web configurator for XSFC flight controllers"
+        />
+        <link rel="icon" href="/images/xsfc-icon.svg" type="image/svg+xml" />
+        <meta name="theme-color" content="#30343b" />
+    </head>
+    <body>
+        <!-- Every dialog lives in Vue now (see src/components/dialogs). Do not add markup after
+             <app></app>: it would be parsed as slot content and dropped, since App.vue has no slot. -->
+        <div id="main-wrapper">
+            <app></app>
+        </div>
+    </body>
+</html>

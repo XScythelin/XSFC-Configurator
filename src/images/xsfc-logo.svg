@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 96">
+  <rect x="4" y="4" width="88" height="88" rx="22" fill="#30343b"/>
+  <path d="m27 27 42 42m0-42L27 69" stroke="#b65b62" stroke-width="10" stroke-linecap="round"/>
+  <path d="m48 35 13 13-13 13-13-13Z" fill="#e5e7eb"/>
+  <text x="112" y="66" font-family="Arial,sans-serif" font-size="58" font-weight="700" letter-spacing="5" fill="#b65b62">XSFC</text>
+</svg>
