@@ -1,4 +1,10 @@
 {
+    "xsfcWorkTime": {
+        "message": "Work time"
+    },
+    "xsfcWorkTimeHelp": {
+        "message": "Elapsed XSFC work-section time, including peripheral waits; not CPU execution utilization."
+    },
     "translation_version": {
         "message": "0"
     },

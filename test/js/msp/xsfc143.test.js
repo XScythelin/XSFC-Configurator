@@ -16,6 +16,24 @@ function receive(code, bytes) {
 }
 
 describe("XSFC API 1.43 payload compatibility", () => {
+    it("rejects corrupt filter frequencies instead of wrapping and disabling D-term LPFs", () => {
+        FC.FILTER_CONFIG.dterm_lowpass_hz = 56325;
+        expect(() => helper.crunch(MSPCodes.MSP_SET_FILTER_CONFIG)).toThrow("Invalid XSFC filter frequency");
+    });
+    it("round-trips full-rate Blackbox index zero without disabling the device", () => {
+        receive(MSPCodes.MSP_BLACKBOX_CONFIG, [1, 1, 1, 1, 0, 0, 0]);
+        expect(FC.BLACKBOX.blackboxDevice).toBe(1);
+        expect(FC.BLACKBOX.blackboxSampleRate).toBe(0);
+        expect(helper.crunch(MSPCodes.MSP_SET_BLACKBOX_CONFIG)).toEqual([1, 1, 1, 0, 0, 0]);
+    });
+
+    it("decodes legacy six-byte XSFC Blackbox responses without reading past the packet", () => {
+        FC.CONFIG.sampleRateHz = 8000;
+        FC.PID_ADVANCED_CONFIG.pid_process_denom = 2;
+        receive(MSPCodes.MSP_BLACKBOX_CONFIG, [1, 1, 1, 1, 32, 0]);
+        expect(FC.BLACKBOX.blackboxSampleRate).toBe(2);
+    });
+
     beforeEach(() => {
         FC.resetState();
         FC.CONFIG.apiVersion = "1.43.0";

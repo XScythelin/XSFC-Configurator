@@ -1,5 +1,19 @@
 # XSFC Configurator
 
+- [x] XSFC PID save now reboots (firmware applies private controller/filter
+  state at restart); Angle row maps to7 not ALT row3, unsupported Horizon
+  fields hidden; plain D correctly labelled and D-max cells disabled.
+- [x] Blackbox1.43 six-byte responses no longer read missing sample-rate byte;
+  legacy ratio converted, explicit XSFC sample byte supported. Two round-trip
+  tests added;13 CPU/MSP tests passed. Hardware record/download still pending.
+- [ ] Hardware save/reboot/readback for PID,Angle,rates and Blackbox;
+  regression cause not established without pre-reset dump.
+
+- [x] multicore_tests branch: relabel XSFC CPU section percentages as Work time
+  and explain peripheral waits in tooltip; do not claim RTOS utilization.
+  11 CPU/MSP tests and production build passed. Analysis-only cpustats was
+  subsequently removed from firmware; tooltip no longer suggests that command.
+
 - [ ] Current follow-up: user measured ~70 mV at GPIO21/GND with UI ~0.9 A;
   scale100 predicts 0.7 A. Approximate unsynchronized measurements do not
   establish ADC error or actual amps. No current reference; calibration pending.

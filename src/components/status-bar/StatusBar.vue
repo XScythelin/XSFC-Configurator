@@ -34,8 +34,9 @@
                 <USeparator orientation="vertical" :ui="{ root: 'py-1', border: 'border-accented' }" />
             </template>
 
-            <span v-if="coreLoads && fcConfig.boardIdentifier === 'XSFC'" class="stat-group cpu-load">
+            <span v-if="coreLoads && fcConfig.boardIdentifier === 'XSFC'" class="stat-group cpu-load" :title="$t('xsfcWorkTimeHelp')">
                 <UIcon name="i-lucide-cpu" class="stat-icon" />
+                <span class="value">{{ $t('xsfcWorkTime') }}</span>
                 <span v-for="(load, core) in coreLoads" :key="core" class="value">CPU{{ core }}: {{ load }}%</span>
             </span>
             <UTooltip v-else :text="`${$t('statusbar_cpu_load')} ${cpuLoad}%`">

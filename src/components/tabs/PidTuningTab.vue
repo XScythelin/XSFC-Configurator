@@ -451,7 +451,7 @@ function toggleShowAllPids() {
 
 // Save/Refresh
 const { isSaving, runSave } = useSaving();
-const { saveToEeprom } = useReboot();
+const { saveToEeprom, saveAndReboot } = useReboot();
 
 function save() {
     if (!hasChanges.value) {
@@ -509,6 +509,11 @@ function save() {
             }
 
             // Persist to EEPROM (no reboot)
+            if (FC.CONFIG.boardIdentifier === "XSFC") {
+                // XSFC applies PID/rate/filter state only on restart.
+                await saveAndReboot();
+                return;
+            }
             await saveToEeprom();
 
             // Only after a successful persist: re-validate sliders, refresh the slider

@@ -305,6 +305,13 @@ MspHelper.prototype.process_data = function (dataHandler) {
                     FC.SENSOR_DATA.magnetometer[0] = data.read16();
                     FC.SENSOR_DATA.magnetometer[1] = data.read16();
                     FC.SENSOR_DATA.magnetometer[2] = data.read16();
+                    // Optional XSFC high-resolution gyro extension. Older
+                    // firmware still uses the legacy integer-deg/s prefix.
+                    if (FC.CONFIG.boardIdentifier === "XSFC" && data.byteLength >= 24) {
+                        FC.SENSOR_DATA.gyroscope[0] = data.read16() / 10;
+                        FC.SENSOR_DATA.gyroscope[1] = data.read16() / 10;
+                        FC.SENSOR_DATA.gyroscope[2] = data.read16() / 10;
+                    }
                     break;
                 case MSPCodes.MSP_SERVO:
                     const servoCount = data.byteLength / 2;
@@ -1562,7 +1569,15 @@ MspHelper.prototype.process_data = function (dataHandler) {
                     FC.BLACKBOX.blackboxPDenom = data.readU16();
 
                     // Introduced in API version 1.44
-                    FC.BLACKBOX.blackboxSampleRate = data.readU8();
+                    if (semver.gte(FC.CONFIG.apiVersion, API_VERSION_1_44) || data.byteLength >= 7) {
+                        FC.BLACKBOX.blackboxSampleRate = data.readU8();
+                    } else {
+                        // Older XSFC 1.43 packets lack the explicit sample-rate byte.
+                        const ratio = FC.BLACKBOX.blackboxPDenom;
+                        const pidHz = FC.CONFIG.sampleRateHz / (FC.PID_ADVANCED_CONFIG.pid_process_denom || 1);
+                        FC.BLACKBOX.blackboxSampleRate = ratio <= 4 ? ratio :
+                            Math.max(0, Math.min(4, Math.floor(Math.log2(0.032 * pidHz / ratio)) || 0));
+                    }
 
                     // Introduced in API version 1.45
                     if (semver.gte(FC.CONFIG.apiVersion, API_VERSION_1_45)) {
@@ -2233,6 +2248,15 @@ MspHelper.prototype.crunch = function (code, modifierCode = undefined) {
 
             break;
         case MSPCodes.MSP_SET_FILTER_CONFIG:
+            if (FC.CONFIG.boardIdentifier === "XSFC") {
+                // Firmware stores these frequencies as signed int16 Hz. Never
+                // wrap corrupt/readback values into negative, disabled filters.
+                for (const [key, value] of Object.entries(FC.FILTER_CONFIG)) {
+                    if (key.endsWith("_hz") && (!Number.isInteger(value) || value < 0 || value > 32767)) {
+                        throw new Error(`Invalid XSFC filter frequency ${key}: ${value}`);
+                    }
+                }
+            }
             buffer
                 .push8(FC.FILTER_CONFIG.gyro_lowpass_hz)
                 .push16(FC.FILTER_CONFIG.dterm_lowpass_hz)

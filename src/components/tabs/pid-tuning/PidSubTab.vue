@@ -287,7 +287,7 @@
                         :step="1"
                         :min="0"
                         :max="250"
-                        :disabled="rollPitchDisabled"
+                        :disabled="rollPitchDisabled || isXsfc"
                         size="xs"
                         orientation="vertical"
                         class="w-full"
@@ -341,7 +341,7 @@
                         :step="1"
                         :min="0"
                         :max="250"
-                        :disabled="rollPitchDisabled"
+                        :disabled="rollPitchDisabled || isXsfc"
                         size="xs"
                         orientation="vertical"
                         class="w-full"
@@ -395,7 +395,7 @@
                         :step="1"
                         :min="0"
                         :max="250"
-                        :disabled="yawDisabled"
+                        :disabled="yawDisabled || isXsfc"
                         size="xs"
                         orientation="vertical"
                         class="w-full"
@@ -612,8 +612,9 @@
                     <div></div>
 
                     <!-- Horizon -->
-                    <div class="text-xs">{{ $t("pidTuningHorizon") }}</div>
+                    <div v-if="FC.CONFIG.boardIdentifier !== 'XSFC'" class="text-xs">{{ $t("pidTuningHorizon") }}</div>
                     <UInputNumber
+                        v-if="FC.CONFIG.boardIdentifier !== 'XSFC'"
                         v-model="pidLevelHorizon"
                         :step="1"
                         :min="0"
@@ -623,6 +624,7 @@
                         class="w-full"
                     />
                     <UInputNumber
+                        v-if="FC.CONFIG.boardIdentifier !== 'XSFC'"
                         v-model="pidLevelTransition"
                         :step="1"
                         :min="0"
@@ -1154,10 +1156,12 @@ const isPreApi145 = computed(() => semver.lt(FC.CONFIG.apiVersion, API_VERSION_1
 const isPreApi147 = computed(() => semver.lt(FC.CONFIG.apiVersion, API_VERSION_1_47));
 // Absolute Control was removed from firmware in API 1.48
 const isPreApi148 = computed(() => semver.lt(FC.CONFIG.apiVersion, API_VERSION_1_48));
-const derivativeLabel = computed(() => (isPreApi147.value ? "pidTuningDMax" : "pidTuningDerivative"));
-const derivativeHelp = computed(() => (isPreApi147.value ? "pidTuningDMaxHelp" : "pidTuningDerivativeHelp"));
-const dMaxLabel = computed(() => (isPreApi147.value ? "pidTuningDerivative" : "pidTuningDMax"));
-const dMaxHelp = computed(() => (isPreApi147.value ? "pidTuningDerivativeHelp" : "pidTuningDMaxHelp"));
+const isXsfc = computed(() => FC.CONFIG.boardIdentifier === "XSFC");
+// XSFC has a plain D coefficient, not Betaflight 1.43's D-min/D-max pair.
+const derivativeLabel = computed(() => (!isXsfc.value && isPreApi147.value ? "pidTuningDMax" : "pidTuningDerivative"));
+const derivativeHelp = computed(() => (!isXsfc.value && isPreApi147.value ? "pidTuningDMaxHelp" : "pidTuningDerivativeHelp"));
+const dMaxLabel = computed(() => (!isXsfc.value && isPreApi147.value ? "pidTuningDerivative" : "pidTuningDMax"));
+const dMaxHelp = computed(() => (!isXsfc.value && isPreApi147.value ? "pidTuningDerivativeHelp" : "pidTuningDMaxHelp"));
 
 // Local show-all state in sync with prop
 const showAllLocal = ref(props.showAllPids);
@@ -1231,22 +1235,23 @@ const pidYawD = computed({
     },
 });
 
+const levelPidIndex = computed(() => FC.CONFIG.boardIdentifier === "XSFC" ? 7 : 3);
 const pidLevelAngle = computed({
-    get: () => FC.PIDS[3][0],
+    get: () => FC.PIDS[levelPidIndex.value][0],
     set: (val) => {
-        FC.PIDS[3][0] = val;
+        FC.PIDS[levelPidIndex.value][0] = val;
     },
 });
 const pidLevelHorizon = computed({
-    get: () => FC.PIDS[3][1],
+    get: () => FC.PIDS[levelPidIndex.value][1],
     set: (val) => {
-        FC.PIDS[3][1] = val;
+        FC.PIDS[levelPidIndex.value][1] = val;
     },
 });
 const pidLevelTransition = computed({
-    get: () => FC.PIDS[3][2],
+    get: () => FC.PIDS[levelPidIndex.value][2],
     set: (val) => {
-        FC.PIDS[3][2] = val;
+        FC.PIDS[levelPidIndex.value][2] = val;
     },
 });
 

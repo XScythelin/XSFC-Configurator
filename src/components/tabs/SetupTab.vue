@@ -656,7 +656,7 @@ function process_html() {
 
         state.cpuLoad =
             cpuLoadStore.coreLoads && fcStore.config.boardIdentifier === "XSFC"
-                ? cpuLoadStore.coreLoads.map((load, core) => `CPU${core}: ${load}%`).join(" · ")
+                ? `${t("xsfcWorkTime")}: ${cpuLoadStore.coreLoads.map((load, core) => `CPU${core}: ${load}%`).join(" · ")}`
                 : `${fcStore.config.cpuload} %`;
 
         const cycleTime = fcStore.config.cycleTime;
